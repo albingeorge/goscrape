@@ -1,6 +1,7 @@
 package htmlparser
 
 import (
+	"github.com/albingeorge/scraper/datamanager"
 	// "bytes"
 	"errors"
 	"fmt"
@@ -18,13 +19,17 @@ func ParseHtmlString(htmldata string) {
 	z := html.NewTokenizer(r)
 
 	i := 1
+	urlList := datamanager.URLList()
+
+testLoop:
 	for {
 		tt := z.Next()
 		i = i + 1
 		switch {
 		case tt == html.ErrorToken:
 			// End of the document, we're done
-			return
+			fmt.Println("Breaking")
+			break testLoop
 		case tt == html.StartTagToken:
 			t := z.Token()
 			isAnchor := t.Data == "a"
@@ -32,16 +37,23 @@ func ParseHtmlString(htmldata string) {
 				// todo: manage this error here
 				url, _ := getURLFromToken(t)
 
-				fmt.Println("Needs to be added: ", isRequiredToAdd(url))
+				if isRequiredToAdd(url) {
+					fmt.Println("Adding url: ", url)
+					urlList.AddURL(url)
+				}
 			}
 		}
 	}
+	fmt.Println("URL List:")
+	for url := range urlList.GetURLs() {
+		fmt.Println(url)
+	}
+
 }
 
 func getURLFromToken(t html.Token) (string, error) {
 	for _, attr := range t.Attr {
 		if attr.Key == "href" {
-			fmt.Println("Found href:", attr.Val)
 			return attr.Val, nil
 		}
 	}
