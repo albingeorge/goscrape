@@ -35,6 +35,7 @@ func (u *urlList) GetURLs() map[string]bool {
 
 var u *urlList
 
+// URLList ...initialises the URL list
 func URLList() *urlList {
 	if u == nil {
 		u = &urlList{

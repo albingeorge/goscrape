@@ -1,19 +1,17 @@
 package htmlparser
 
 import (
-	"github.com/albingeorge/scraper/datamanager"
-	// "bytes"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/albingeorge/scraper/config"
+	"github.com/albingeorge/scraper/datamanager"
 	"golang.org/x/net/html"
-
-	// "io"
-	"strings"
 )
 
-func ParseHtmlString(htmldata string) {
+// ParseHTMLString ...parses an html string input
+func ParseHTMLString(htmldata string) {
 	r := strings.NewReader(htmldata)
 
 	z := html.NewTokenizer(r)

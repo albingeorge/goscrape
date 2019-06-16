@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/albingeorge/scraper/htmlparser"
-	// "io"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/albingeorge/scraper/config"
+	"github.com/albingeorge/scraper/htmlparser"
 )
 
 func main() {
@@ -29,9 +28,7 @@ func main() {
 		panic(err)
 	}
 
-	htmlparser.ParseHtmlString(htmlReader)
-
-	// fmt.Println(html)
+	htmlparser.ParseHTMLString(htmlReader)
 }
 
 func fetchHTMLReader(url string) (string, error) {
