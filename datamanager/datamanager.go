@@ -19,7 +19,7 @@ type urlList struct {
 	mu   sync.RWMutex
 }
 
-func (u *urlList) AddURL(url string) {
+func (u *urlList) Add(url string) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	if _, ok := u.urls[url]; !ok {
@@ -27,7 +27,7 @@ func (u *urlList) AddURL(url string) {
 	}
 }
 
-func (u *urlList) GetURLs() map[string]bool {
+func (u *urlList) Get() map[string]bool {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	return u.urls
@@ -35,12 +35,57 @@ func (u *urlList) GetURLs() map[string]bool {
 
 var u *urlList
 
-// URLList ...initialises the URL list
-func URLList() *urlList {
+// GetURLListInstance ...initialises the singleton URL list
+func GetURLListInstance() *urlList {
 	if u == nil {
 		u = &urlList{
 			urls: make(map[string]bool),
 		}
 	}
 	return u
+}
+
+// Resource ..the download struct
+type Resource struct {
+	URL        string
+	RefererURL string
+}
+
+/*
+	resourceList ... keeps a list of resources for download
+
+	This keeps a map of string to Resource object
+	The index should uniquely identify one Resource object across all the pages,
+	so that we would not have to download one resourse twice while scraping
+*/
+type ResourceList struct {
+	mu        sync.RWMutex
+	Resources map[string]Resource
+}
+
+// Add ...adds a resource to the resource list
+func (d *ResourceList) Add(key string, r Resource) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if _, ok := d.Resources[key]; !ok {
+		d.Resources[key] = r
+	}
+}
+
+// Get ...fetches the entire resource list
+func (d *ResourceList) Get() map[string]Resource {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	return d.Resources
+}
+
+var r *ResourceList
+
+func GetResourceListInstance() *ResourceList {
+	if r == nil {
+		r = &ResourceList{
+			Resources: make(map[string]Resource),
+		}
+	}
+	return r
 }

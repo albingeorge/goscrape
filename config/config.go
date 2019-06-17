@@ -4,7 +4,7 @@ import "sync"
 
 const (
 	//IMAGES ... images
-	IMAGES = "IMAGES"
+	IMAGES = "img"
 	//VIDEOS ... videos
 	VIDEOS = "VIDEOS"
 )
@@ -39,7 +39,7 @@ func (e *Environment) LoadConfigs() {
 	// todo: generate this based on a config file
 	config = Configs{
 		URL:                "https://www.mangapanda.com/one-piece",
-		Whitelist:          []string{"images"},
+		Whitelist:          []string{IMAGES},
 		ConcurrentRequests: 1,
 		BaseURL:            "https://www.mangapanda.com",
 		RelativeURL:        "/one-piece",

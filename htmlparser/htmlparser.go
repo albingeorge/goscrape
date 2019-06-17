@@ -17,7 +17,10 @@ func ParseHTMLString(htmldata string) {
 	z := html.NewTokenizer(r)
 
 	i := 1
-	urlList := datamanager.URLList()
+	urlList := datamanager.GetURLListInstance()
+
+	c := config.GetInstance().GetConf()
+	resourceList := datamanager.GetResourceListInstance()
 
 testLoop:
 	for {
@@ -35,18 +38,26 @@ testLoop:
 				// todo: manage this error here
 				url, _ := getURLFromToken(t)
 
-				if isRequiredToAdd(url) {
-					fmt.Println("Adding url: ", url)
-					urlList.AddURL(url)
+				if isRequiredToAdd(url, c) {
+					urlList.Add(url)
 				}
+			}
+
+			if shouldAddToResourceList(t, c) {
+				fmt.Println("shouldAddToResourceList: ", shouldAddToResourceList(t, c))
+				addToResourceList(t, resourceList)
 			}
 		}
 	}
-	fmt.Println("URL List:")
-	for url := range urlList.GetURLs() {
-		fmt.Println(url)
-	}
+	// fmt.Println("URL List:")
+	// for url := range urlList.Get() {
+	// 	fmt.Println(url)
+	// }
 
+	fmt.Println("\n\nResource List:")
+	for r := range resourceList.Get() {
+		fmt.Println(r)
+	}
 }
 
 func getURLFromToken(t html.Token) (string, error) {
@@ -58,9 +69,7 @@ func getURLFromToken(t html.Token) (string, error) {
 	return "", errors.New("Attribute href not founnd in a tag")
 }
 
-func isRequiredToAdd(url string) bool {
-	c := config.GetInstance().GetConf()
-
+func isRequiredToAdd(url string, conf config.Configs) bool {
 	// if it's a relative URL
 	if strings.HasPrefix(url, "/") {
 		/*
@@ -69,22 +78,52 @@ func isRequiredToAdd(url string) bool {
 			2. Check if the current URL starts with the relative global URL
 
 		*/
-		if strings.HasPrefix(url, c.RelativeURL) {
+		if strings.HasPrefix(url, conf.RelativeURL) {
 			return true
 		}
 	} else {
 		/*
 			Check if the current URL is an extension of the input URL
 
-			i.e, if the current URL is "abc.com/a/123" and the base URL is
+			i.e, if the current URL is "aconfc.com/a/123" and the base URL is
 			"abc.com/a", then it needs to be added.
 
 			if the current URL is "abc.com/a/123" and the base URL is
 			"abc.com/b", then it should not to be added
 		*/
-		if strings.HasPrefix(url, c.URL) {
+		if strings.HasPrefix(url, conf.URL) {
 			return true
 		}
 	}
 	return false
+}
+
+func shouldAddToResourceList(t html.Token, conf config.Configs) bool {
+	fmt.Println(t.Data)
+	for _, b := range conf.Whitelist {
+		if b == t.Data {
+			return true
+		}
+	}
+	return false
+}
+
+func addToResourceList(t html.Token, r *datamanager.ResourceList) {
+	fmt.Println("addToResourceList: ", t.Data)
+	switch t.Data {
+	case "img":
+		key, resource := generateImageResource(t)
+		fmt.Println("Adding to resource list: ", key)
+		r.Add(key, resource)
+	}
+}
+
+func generateImageResource(t html.Token) (string, datamanager.Resource) {
+	r := datamanager.Resource{}
+	for _, attr := range t.Attr {
+		if attr.Key == "src" {
+			r.URL = attr.Val
+		}
+	}
+	return r.URL, r
 }
