@@ -16,7 +16,6 @@ func ParseHTMLString(htmldata string) {
 
 	z := html.NewTokenizer(r)
 
-	i := 1
 	urlList := datamanager.GetURLListInstance()
 
 	c := config.GetInstance().GetConf()
@@ -25,34 +24,30 @@ func ParseHTMLString(htmldata string) {
 testLoop:
 	for {
 		tt := z.Next()
-		i = i + 1
 		switch {
 		case tt == html.ErrorToken:
-			// End of the document, we're done
-			fmt.Println("Breaking")
 			break testLoop
-		case tt == html.StartTagToken:
+		case tt == html.StartTagToken || tt == html.SelfClosingTagToken:
 			t := z.Token()
 			isAnchor := t.Data == "a"
 			if isAnchor {
 				// todo: manage this error here
 				url, _ := getURLFromToken(t)
 
-				if isRequiredToAdd(url, c) {
+				if shouldAddToURLList(url, c) {
 					urlList.Add(url)
 				}
 			}
 
 			if shouldAddToResourceList(t, c) {
-				fmt.Println("shouldAddToResourceList: ", shouldAddToResourceList(t, c))
 				addToResourceList(t, resourceList)
 			}
 		}
 	}
-	// fmt.Println("URL List:")
-	// for url := range urlList.Get() {
-	// 	fmt.Println(url)
-	// }
+	fmt.Println("URL List:")
+	for url := range urlList.Get() {
+		fmt.Println(url)
+	}
 
 	fmt.Println("\n\nResource List:")
 	for r := range resourceList.Get() {
@@ -69,7 +64,7 @@ func getURLFromToken(t html.Token) (string, error) {
 	return "", errors.New("Attribute href not founnd in a tag")
 }
 
-func isRequiredToAdd(url string, conf config.Configs) bool {
+func shouldAddToURLList(url string, conf config.Configs) bool {
 	// if it's a relative URL
 	if strings.HasPrefix(url, "/") {
 		/*
@@ -99,7 +94,6 @@ func isRequiredToAdd(url string, conf config.Configs) bool {
 }
 
 func shouldAddToResourceList(t html.Token, conf config.Configs) bool {
-	fmt.Println(t.Data)
 	for _, b := range conf.Whitelist {
 		if b == t.Data {
 			return true
@@ -109,11 +103,9 @@ func shouldAddToResourceList(t html.Token, conf config.Configs) bool {
 }
 
 func addToResourceList(t html.Token, r *datamanager.ResourceList) {
-	fmt.Println("addToResourceList: ", t.Data)
 	switch t.Data {
 	case "img":
 		key, resource := generateImageResource(t)
-		fmt.Println("Adding to resource list: ", key)
 		r.Add(key, resource)
 	}
 }
