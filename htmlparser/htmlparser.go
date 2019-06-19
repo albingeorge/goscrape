@@ -2,7 +2,6 @@ package htmlparser
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/albingeorge/scraper/config"
@@ -11,7 +10,7 @@ import (
 )
 
 // ParseHTMLString ...parses an html string input
-func ParseHTMLString(htmldata string) {
+func ParseHTMLString(url string, htmldata string) {
 	r := strings.NewReader(htmldata)
 
 	z := html.NewTokenizer(r)
@@ -26,6 +25,7 @@ testLoop:
 		tt := z.Next()
 		switch {
 		case tt == html.ErrorToken:
+			urlList.SetDone(url)
 			break testLoop
 		case tt == html.StartTagToken || tt == html.SelfClosingTagToken:
 			t := z.Token()
@@ -43,15 +43,6 @@ testLoop:
 				addToResourceList(t, resourceList)
 			}
 		}
-	}
-	fmt.Println("URL List:")
-	for url := range urlList.Get() {
-		fmt.Println(url)
-	}
-
-	fmt.Println("\n\nResource List:")
-	for r := range resourceList.Get() {
-		fmt.Println(r)
 	}
 }
 

@@ -1,6 +1,11 @@
 package datamanager
 
-import "sync"
+import (
+	"strings"
+	"sync"
+
+	"github.com/albingeorge/scraper/config"
+)
 
 /*
 	This list would be used to maintain a list of URLs to be parsed
@@ -23,7 +28,19 @@ func (u *urlList) Add(url string) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	if _, ok := u.urls[url]; !ok {
+		if strings.HasPrefix(url, "/") {
+			conf := config.GetInstance()
+			url = conf.GetConf().BaseURL + url
+		}
 		u.urls[url] = false
+	}
+}
+
+func (u *urlList) SetDone(url string) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	if _, ok := u.urls[url]; ok {
+		u.urls[url] = true
 	}
 }
 
