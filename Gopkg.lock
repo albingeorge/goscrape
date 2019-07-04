@@ -2,6 +2,22 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:33217548884728c0ef67dea74a130c18af2b1b1c53c399dd42dc285eaf67f3a8"
+  name = "github.com/Gurpartap/logrus-stack"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "89c00d8a28f43c567d92eb81a2945301a6a9fbb9"
+
+[[projects]]
+  branch = "master"
+  digest = "1:9a023ac8c30a6871d3fc94c9c0b5a0639ede096c351fd6cdcd7268fe9cb95af2"
+  name = "github.com/facebookgo/stack"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "751773369052141c013c6e827a71e8f35c07879c"
+
+[[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -26,20 +42,21 @@
     "html/atom",
   ]
   pruneopts = "UT"
-  revision = "3b0461eec859c4b73bb64fdc8285971fd33e3938"
+  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
 
 [[projects]]
   branch = "master"
-  digest = "1:a2b03582f5805ebb5d96482a0ea550d48aba5347cc5089d89d2307ac55b98660"
+  digest = "1:730ba27cd66db3b98ec8f51a6f20d45ec277d490cca36b1f54e31d3fcaf4840e"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "d432491b91382bba9c2a91776aa47c9430183a6f"
+  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/Gurpartap/logrus-stack",
     "github.com/sirupsen/logrus",
     "golang.org/x/net/html",
   ]

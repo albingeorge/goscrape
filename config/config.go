@@ -38,11 +38,11 @@ func GetInstance() *Environment {
 func (e *Environment) LoadConfigs() {
 	// todo: generate this based on a config file
 	config = Configs{
-		URL:                "https://www.mangapanda.com/one-piece",
+		URL:                "https://www.mangapanda.com/one-piece/1",
 		Whitelist:          []string{IMAGES},
 		ConcurrentRequests: 1,
 		BaseURL:            "https://www.mangapanda.com",
-		RelativeURL:        "/one-piece",
+		RelativeURL:        "/one-piece/1",
 	}
 }
 

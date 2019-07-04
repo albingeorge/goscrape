@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/albingeorge/scraper/config"
+	"github.com/albingeorge/scraper/logger"
 )
 
 /*
@@ -27,11 +28,13 @@ type urlList struct {
 func (u *urlList) Add(url string) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
+	if strings.HasPrefix(url, "/") {
+		conf := config.GetInstance()
+		url = conf.GetConf().BaseURL + url
+	}
 	if _, ok := u.urls[url]; !ok {
-		if strings.HasPrefix(url, "/") {
-			conf := config.GetInstance()
-			url = conf.GetConf().BaseURL + url
-		}
+		lgr := logger.Get()
+		lgr.Info("ADD_URL", map[string]interface{}{"url": url})
 		u.urls[url] = false
 	}
 }

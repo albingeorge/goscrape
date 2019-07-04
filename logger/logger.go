@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	logrus_stack "github.com/Gurpartap/logrus-stack"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,6 +20,8 @@ func Init() {
 	})
 
 	logrus.SetOutput(os.Stdout)
+
+	logrus.AddHook(logrus_stack.StandardHook())
 }
 
 // Get ...get instance of Logger

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -62,7 +61,8 @@ func main() {
 		}
 	}
 
-	defer fmt.Println(urlList)
+	logURLList(urlList)
+	logResourceList(datamanager.GetResourceListInstance().Get())
 }
 
 func fetchHTMLReader(url string) (string, error) {
@@ -85,4 +85,18 @@ func fetchURLToParse(urlList map[string]bool) string {
 	}
 
 	return ""
+}
+
+func logURLList(urlList map[string]bool) {
+	lgr := logger.Get()
+	lgr.Info("URL List", map[string]interface{}{"urls": urlList})
+}
+
+func logResourceList(resources map[string]datamanager.Resource) {
+	lgr := logger.Get()
+	urls := []string{}
+	for url := range resources {
+		urls = append(urls, url)
+	}
+	lgr.Info("Resource URL", map[string]interface{}{"url": urls})
 }
