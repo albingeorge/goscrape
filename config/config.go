@@ -18,6 +18,7 @@ type Configs struct {
 	URL                string
 	BaseURL            string
 	RelativeURL        string
+	MangaName          string
 	Whitelist          []string
 	ConcurrentRequests int
 }
@@ -38,11 +39,12 @@ func GetInstance() *Environment {
 func (e *Environment) LoadConfigs() {
 	// todo: generate this based on a config file
 	config = Configs{
-		URL:                "https://www.mangapanda.com/one-piece/1",
+		URL:                "https://www.mangapanda.com/one-piece/196",
 		Whitelist:          []string{IMAGES},
 		ConcurrentRequests: 1,
 		BaseURL:            "https://www.mangapanda.com",
-		RelativeURL:        "/one-piece/1",
+		RelativeURL:        "/one-piece/196",
+		MangaName:          "one-piece",
 	}
 }
 

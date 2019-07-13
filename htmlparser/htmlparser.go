@@ -2,10 +2,13 @@ package htmlparser
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/albingeorge/scraper/config"
 	"github.com/albingeorge/scraper/datamanager"
+	"github.com/albingeorge/scraper/logger"
 	"golang.org/x/net/html"
 )
 
@@ -40,7 +43,7 @@ testLoop:
 			}
 
 			if shouldAddToResourceList(t, c) {
-				addToResourceList(t, resourceList)
+				addToResourceList(t, resourceList, url)
 			}
 		}
 	}
@@ -93,20 +96,76 @@ func shouldAddToResourceList(t html.Token, conf config.Configs) bool {
 	return false
 }
 
-func addToResourceList(t html.Token, r *datamanager.ResourceList) {
+func addToResourceList(t html.Token, r *datamanager.ResourceList, url string) {
 	switch t.Data {
 	case "img":
-		key, resource := generateImageResource(t)
-		r.Add(key, resource)
+		resource := generateImageResource(t, url)
+		r.Add(url, resource)
 	}
 }
 
-func generateImageResource(t html.Token) (string, datamanager.Resource) {
-	r := datamanager.Resource{}
+func generateImageResource(t html.Token, url string) datamanager.Resource {
+	directory, fileName := generateDirectoryAndFileName(url)
+
+	r := datamanager.Resource{
+		RefererURL: url,
+		Directory:  directory,
+		FileName:   fileName,
+	}
+
 	for _, attr := range t.Attr {
 		if attr.Key == "src" {
 			r.URL = attr.Val
 		}
 	}
-	return r.URL, r
+	return r
+}
+
+func generateDirectoryAndFileName(url string) (string, string) {
+	lgr := logger.Get()
+	c := config.GetInstance().GetConf()
+
+	/*
+		Sample URL formats can be of 2 types:
+		1. https://www.mangapanda.com/one-piece/940
+		2. https://www.mangapanda.com/one-piece/940/5
+
+		1. Split based on manga name("one-piece")
+		2. Split the second part again based on "/" and check the size of split strings
+		3. If size is 2, name the file as "001"
+		4. Else if size is 3, name the file as splitString[2]
+	*/
+
+	splitByName := strings.Split(url, c.MangaName)
+	splitString := strings.Split(splitByName[1], "/")
+
+	/*
+		splitString formats:
+		"/940"
+		"/940/2"
+
+		In either of the cases, upon splitting by "/", the minimum length is 2
+	*/
+	if len(splitString) == 2 {
+		return splitString[1], "001"
+	} else if len(splitString) == 3 {
+		pageNumber, err := strconv.Atoi(splitString[2])
+
+		if err != nil {
+			data := map[string]interface{}{
+				"input_string": splitString[1],
+			}
+			lgr.Error("PAGE_NUMBER_FETCH_ERROR", data, "error converting string to int")
+			return "", ""
+		}
+		pageString := fmt.Sprintf("%03d", pageNumber)
+
+		return splitString[1], pageString
+	}
+
+	data := map[string]interface{}{
+		"url": url,
+	}
+	lgr.Error("FILE_NAME_FETCH_ERROR", data, "error fetching file name and directory name")
+	return "", ""
 }

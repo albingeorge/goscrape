@@ -69,6 +69,8 @@ func GetURLListInstance() *urlList {
 type Resource struct {
 	URL        string
 	RefererURL string
+	Directory  string
+	FileName   string
 }
 
 /*

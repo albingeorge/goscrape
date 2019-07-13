@@ -31,7 +31,7 @@ func main() {
 
 	urlListObj.Add(url)
 	// fmt.Println(urlList)
-	lgr := logger.Get()
+	// lgr := logger.Get()
 
 	for true {
 		urlList = urlListObj.Get()
@@ -39,7 +39,7 @@ func main() {
 		url = fetchURLToParse(urlList)
 
 		if url != "" {
-			lgr.Info("url", map[string]interface{}{"url": url})
+			// lgr.Info("url", map[string]interface{}{"url": url})
 			htmlReader, err := fetchHTMLReader(url)
 			if err != nil {
 				panic(err)
@@ -94,9 +94,14 @@ func logURLList(urlList map[string]bool) {
 
 func logResourceList(resources map[string]datamanager.Resource) {
 	lgr := logger.Get()
-	urls := []string{}
+	urls := map[string]interface{}{}
 	for url := range resources {
-		urls = append(urls, url)
+		urls[url] = map[string]string{
+			"Directory": resources[url].Directory,
+			"FileName":  resources[url].FileName,
+			"URL":       resources[url].URL,
+			"Referrer":  resources[url].RefererURL,
+		}
 	}
-	lgr.Info("Resource URL", map[string]interface{}{"url": urls})
+	lgr.Info("RESOURCE_URLS", map[string]interface{}{"resources": urls})
 }

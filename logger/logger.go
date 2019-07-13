@@ -35,3 +35,11 @@ func Get() *Logger {
 func (lgr *Logger) Info(traceCode string, fields map[string]interface{}) {
 	lgr.Entry.WithFields(fields).Info(traceCode)
 }
+
+func (lgr *Logger) Error(traceCode string, fields map[string]interface{}, message string) {
+	data := map[string]interface{}{
+		"message": message,
+		"data":    fields,
+	}
+	lgr.Entry.WithFields(data).Error(traceCode)
+}
